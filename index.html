@@ -23,6 +23,17 @@ html.dbf-main-ready body{
   pointer-events:auto!important;
 }
 </style>
+<style id="v1358-hide-unused-dashboard-cards-style">
+/* 사용하지 않는 대시보드 카드(품목군별/설비별/공정별/구분별공정)는 v1353에서 제거되지만,
+   제거 직전 잠깐이라도 노출되지 않도록 <head>에서 첫 렌더 순간부터 display:none 으로 숨긴다. */
+section.dashboard-card:has(> #dashGroups),
+section.dashboard-card:has(> #dashEquip),
+section.dashboard-card:has(> #dashProcess),
+section.dashboard-card:has(> #dashGubunProcess),
+#dashGubunProcessCardV1297{
+  display:none!important;
+}
+</style>
 <style id="v1337-full-page-loader-style">
 #dbfFullPageLoader{
   position:fixed!important;inset:0!important;z-index:2147483647!important;
@@ -1705,7 +1716,7 @@ header .tabs #tab-dashboard.on{
     var kpis=document.getElementById('dashboardKpis');
     var cards=dash?dash.querySelectorAll('.dashboard-card').length:0;
     var hasKpis=!!(kpis&&kpis.children&&kpis.children.length);
-    return document.readyState!=='loading'&&!!dash&&cards>=6&&hasKpis;
+    return document.readyState==='complete'&&!!dash&&cards>=6&&hasKpis;
   }
   function finish(){
     if(finished)return;finished=true;settling=false;
@@ -1715,15 +1726,15 @@ header .tabs #tab-dashboard.on{
     window.__dbfFullLoaderDuration=Math.max(0,((window.performance&&performance.now)?performance.now():Date.now())-started);
     setTimeout(function(){
       try{window.__dbfReleaseMainBoot(true)}catch(e){}
-      if(loader){loader.classList.add('dbf-loader-done');setTimeout(function(){try{loader.remove()}catch(e){}},240)}
-    },50);
+      if(loader){loader.classList.add('dbf-loader-done');setTimeout(function(){try{loader.remove()}catch(e){}},360)}
+    },170);
   }
   function settleAndFinish(){
     if(finished||settling)return;settling=true;setProgress(Math.max(value,97),'화면을 준비하는 중입니다');
     requestAnimationFrame(function(){requestAnimationFrame(function(){
-      var done=function(){setTimeout(finish,20)};
-      if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(done,{timeout:180});
-      else setTimeout(done,110);
+      var done=function(){setTimeout(finish,80)};
+      if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(done,{timeout:650});
+      else setTimeout(done,220);
     })});
   }
   function pollReady(){
@@ -2145,17 +2156,17 @@ header .tabs #tab-dashboard.on{
 <div class="material-editor-head"><div><b>재료비 속성</b><span>강종·두께·재료폭·길이 입력 시 중량과 재료비 자동산정</span></div><div class="material-mode-switch"><button id="m-mode-dim" onclick="setModalMaterialMode('dimension')" type="button">치수 자동계산</button><button id="m-mode-direct" onclick="setModalMaterialMode('direct')" type="button">중량 직접입력</button></div></div>
 <div class="material-grid">
 <div class="mfld"><label>강종</label><select id="m-grade" onchange="modalGradeChange();recalcModal()"></select></div>
-<div class="mfld"><label>비중</label><input id="m-density" oninput="recalcModalDebounced()" step="0.01" type="number"/><div class="ph">강종 선택 시 자동입력</div></div>
-<div class="mfld"><label>재료단가 (원/kg)</label><input id="m-matkg" oninput="recalcModalDebounced()" type="number"/><div class="ph" id="ph-matkg"></div></div>
-<div class="mfld"><label>스크랩 회수중량 (kg/개)</label><input id="m-recoverw" oninput="recalcModalDebounced()" step="0.0001" type="number"/><div class="ph">회수단가 기준으로 재료비 차감</div></div>
-<div class="mfld m-dimension"><label>두께 (mm)</label><input id="m-thickness" oninput="recalcModalDebounced()" step="0.01" type="number"/></div>
-<div class="mfld m-dimension"><label>재료폭 (mm)</label><input id="m-width" oninput="recalcModalDebounced()" step="0.1" type="number"/></div>
-<div class="mfld m-dimension"><label>길이 (mm)</label><input id="m-length" oninput="recalcModalDebounced()" step="0.1" type="number"/></div>
-<div class="mfld m-dimension"><label>제품 1개당 소재수량</label><input id="m-useqty" oninput="recalcModalDebounced()" step="0.01" type="number" value="1"/><div class="ph">예: 좌·우 2개 사용 시 2</div></div>
+<div class="mfld"><label>비중</label><input id="m-density" oninput="recalcModal()" step="0.01" type="number"/><div class="ph">강종 선택 시 자동입력</div></div>
+<div class="mfld"><label>재료단가 (원/kg)</label><input id="m-matkg" oninput="recalcModal()" type="number"/><div class="ph" id="ph-matkg"></div></div>
+<div class="mfld"><label>스크랩 회수중량 (kg/개)</label><input id="m-recoverw" oninput="recalcModal()" step="0.0001" type="number"/><div class="ph">회수단가 기준으로 재료비 차감</div></div>
+<div class="mfld m-dimension"><label>두께 (mm)</label><input id="m-thickness" oninput="recalcModal()" step="0.01" type="number"/></div>
+<div class="mfld m-dimension"><label>재료폭 (mm)</label><input id="m-width" oninput="recalcModal()" step="0.1" type="number"/></div>
+<div class="mfld m-dimension"><label>길이 (mm)</label><input id="m-length" oninput="recalcModal()" step="0.1" type="number"/></div>
+<div class="mfld m-dimension"><label>제품 1개당 소재수량</label><input id="m-useqty" oninput="recalcModal()" step="0.01" type="number" value="1"/><div class="ph">예: 좌·우 2개 사용 시 2</div></div>
 <div class="mfld m-dimension"><label>재료 여유 기준</label><select id="m-allow" onchange="modalAllowanceChange();recalcModal()"><option value="auto">공정 자동판단</option><option value="press">프레스 기준</option><option value="laser">레이저 기준</option><option value="none">여유 없음</option><option value="custom">직접 입력</option></select></div>
-<div class="mfld m-dimension"><label>폭 여유 (mm)</label><input id="m-scrapw" oninput="recalcModalDebounced()" step="0.1" type="number"/></div>
-<div class="mfld m-dimension"><label>길이 여유 (mm)</label><input id="m-scrapl" oninput="recalcModalDebounced()" step="0.1" type="number"/></div>
-<div class="mfld m-direct hidden"><label>소재중량 (kg/개)</label><input id="m-matw" oninput="recalcModalDebounced()" placeholder="0" step="0.0001" type="number"/><div class="ph">도면 또는 실측 중량 직접입력</div></div>
+<div class="mfld m-dimension"><label>폭 여유 (mm)</label><input id="m-scrapw" oninput="recalcModal()" step="0.1" type="number"/></div>
+<div class="mfld m-dimension"><label>길이 여유 (mm)</label><input id="m-scrapl" oninput="recalcModal()" step="0.1" type="number"/></div>
+<div class="mfld m-direct hidden"><label>소재중량 (kg/개)</label><input id="m-matw" oninput="recalcModal()" placeholder="0" step="0.0001" type="number"/><div class="ph">도면 또는 실측 중량 직접입력</div></div>
 </div>
 <div class="material-result" id="m-material-result"></div>
 </div>
@@ -2163,8 +2174,8 @@ header .tabs #tab-dashboard.on{
 <aside class="product-attr-right">
 <div class="product-cost-panel-title"><b>제조원가</b><span>개당 원가 및 적용 기준</span></div>
 <div class="mgrid cost-option-grid">
-<div class="mfld"><label>제조경비율 (%)</label><input id="m-ovh" oninput="recalcModalDebounced()" type="number"/><div class="ph" id="ph-ovh"></div></div>
-<div class="mfld"><label>이윤율 (%)</label><input id="m-profit" oninput="recalcModalDebounced()" type="number"/><div class="ph" id="ph-profit"></div></div>
+<div class="mfld"><label>제조경비율 (%)</label><input id="m-ovh" oninput="recalcModal()" type="number"/><div class="ph" id="ph-ovh"></div></div>
+<div class="mfld"><label>이윤율 (%)</label><input id="m-profit" oninput="recalcModal()" type="number"/><div class="ph" id="ph-profit"></div></div>
 </div>
 <div class="modal-cost-headline" id="m-cost-headline">
 <div class="modal-cost-kpi primary"><span>제조원가 개당단가</span><b id="m-unit-cost-v61">0 원</b></div>
@@ -5257,6 +5268,25 @@ header .tabs button{min-width:132px;flex:1 0 auto}
   var PRESS_EGI_EXTRAS=[{"name":"미니샤 가공","amount":"","note":""},{"name":"소폭가공","amount":"","note":""},{"name":"판재 소량","amount":"","note":""}];
   var PRESS_SEED_VERSION='press_cost_estimator_20260705_v1';
   function cleanVendorName(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
+  /* 공백 표기 차이(예: 미니샤가공 / 미니샤 가공)도 같은 EGI 추가 항목으로 처리 */
+  function egiExtraKey(name){return cleanVendorName(name).replace(/\s+/g,'').toLowerCase();}
+  function normalizeEgiExtras(){
+    var source=Array.isArray(MATERIAL_DB.egiExtras)?MATERIAL_DB.egiExtras:[],seen={},out=[];
+    source.forEach(function(row){
+      if(!row)return;
+      var key=egiExtraKey(row.name);if(!key)return;
+      var seed=PRESS_EGI_EXTRAS.find(function(d){return egiExtraKey(d.name)===key;}),current=seen[key];
+      if(current){
+        if((current.amount===''||current.amount==null)&&row.amount!==''&&row.amount!=null)current.amount=row.amount;
+        if(!cleanVendorName(current.note)&&cleanVendorName(row.note))current.note=row.note;
+        return;
+      }
+      current={name:seed?seed.name:cleanVendorName(row.name),amount:row.amount==null?'':row.amount,note:row.note==null?'':row.note};
+      seen[key]=current;out.push(current);
+    });
+    PRESS_EGI_EXTRAS.forEach(function(d){var key=egiExtraKey(d.name);if(!seen[key]){var row={name:d.name,amount:d.amount,note:d.note};seen[key]=row;out.push(row);}});
+    MATERIAL_DB.egiExtras=out;
+  }
   function hasMaterialRowValue(r){return !!cleanVendorName(r&&r.vendor)||(r&&Array.isArray(r.m)&&r.m.some(function(v){return num(v)>0;}));}
   function mergePressRows(target,defaults){
     target=Array.isArray(target)?target:[];
@@ -5279,8 +5309,7 @@ header .tabs button{min-width:132px;flex:1 0 auto}
     });
     Object.keys(PRESS_SCRAP_DEFAULTS).forEach(function(y){if(!MATERIAL_DB.years[y])MATERIAL_DB.years[y]={};MATERIAL_DB.years[y]['고철']=mergePressRows(MATERIAL_DB.years[y]['고철'],PRESS_SCRAP_DEFAULTS[y]);});
     Object.keys(MATERIAL_DB.years).forEach(function(y){if(!MATERIAL_DB.years[y]['고철'])MATERIAL_DB.years[y]['고철']=[{vendor:'',m:Array(12).fill('')}];});
-    if(!Array.isArray(MATERIAL_DB.egiExtras))MATERIAL_DB.egiExtras=[];
-    PRESS_EGI_EXTRAS.forEach(function(d){var hit=MATERIAL_DB.egiExtras.find(function(x){return x&&x.name===d.name;});if(!hit)MATERIAL_DB.egiExtras.push({name:d.name,amount:d.amount,note:d.note});});
+    normalizeEgiExtras();
     MATERIAL_DB.pressSeedVersion=PRESS_SEED_VERSION;
   }
   var loadMaterialDBBeforePress=loadMaterialDB;
@@ -19341,10 +19370,13 @@ function augmentRawList(list){
 function installRaw(){
  var fn=window.rawMaterialsList;
  if(typeof fn!=='function')return;
- if(fn.__v12422Raw){rawBase=fn.__v12422Base;return}
- rawBase=fn;
- var wrapped=function(){return augmentRawList(rawBase.apply(this,arguments))};
- wrapped.__v12422Raw=true;wrapped.__v12422Base=rawBase;window.rawMaterialsList=wrapped;
+ var __c=fn,__has=false,__d=0;while(typeof __c==='function'&&__d<2000){if(__c.__v12422Raw){__has=true;break}__c=__c.__v12422Base||__c.__v1322RawBase;__d++}
+ if(__has){rawBase=fn.__v12422Base||rawBase;}
+ else{
+ rawBase=fn;var base=fn;
+ var wrapped=function(){return augmentRawList(base.apply(this,arguments))};
+ wrapped.__v12422Raw=true;wrapped.__v12422Base=base;window.rawMaterialsList=wrapped;
+ }
  invalidate();
  try{var v=id('view-raw');if(v&&!v.classList.contains('hidden')&&typeof window.renderRawMaterials==='function')window.renderRawMaterials()}catch(e){}
 }
@@ -19806,16 +19838,25 @@ function queueIdb(db,reason,force){clearTimeout(idbTimer);idbTimer=setTimeout(fu
 function writeProtected(db,reason,opts){
   opts=opts||{};db=normalize(db);var existing=stamp(db),at=Number(opts.at)||Date.now(),saveAt=opts.preserveStamp?(existing||at):at;
   if(!opts.preserveStamp){db._lastSavedAt=Math.max(existing,at);db._lastSavedBy=userName();db.updated=nowText(at)}
-  var text=JSON.stringify(db),ok=true,err='';
-  try{localStorage.setItem(PRIMARY,text);if(localStorage.getItem(PRIMARY)!==text)throw new Error('주 저장소 확인 실패')}catch(e){ok=false;err=e.message||String(e)}
-  try{localStorage.setItem(MIRROR,text);if(localStorage.getItem(MIRROR)!==text)throw new Error('복구 저장소 확인 실패')}catch(e){ok=false;err=err||e.message||String(e)}
+  /* 주 저장소가 정상이라면 보조 백업 실패만으로 저장 오류를 표시하지 않는다.
+     보조 백업은 IndexedDB·세션 백업으로도 유지되어, 저장공간이 부족한 환경에서
+     원자재 단가 페이지를 열 때마다 잘못된 오류 메시지가 뜨는 것을 방지한다. */
+  var text=JSON.stringify(db),primaryOk=true,mirrorOk=true,err='',mirrorErr='',mirrorReleased=false;
+  try{localStorage.setItem(PRIMARY,text);if(localStorage.getItem(PRIMARY)!==text)throw new Error('주 저장소 확인 실패')}catch(e){primaryOk=false;err=e.message||String(e)}
+  /* 주 저장소가 꽉 찬 경우에는 선택용 보조 복사본을 먼저 비우고 즉시 재시도한다.
+     원본 데이터는 현재 메모리·세션·IndexedDB에 유지된 상태이므로 안전하다. */
+  if(!primaryOk){try{localStorage.removeItem(MIRROR);localStorage.setItem(PRIMARY,text);if(localStorage.getItem(PRIMARY)===text){primaryOk=true;mirrorReleased=true;err=''}}catch(retryErr){err=retryErr.message||String(retryErr)}}
+  if(!mirrorReleased)try{localStorage.setItem(MIRROR,text);if(localStorage.getItem(MIRROR)!==text)throw new Error('복구 저장소 확인 실패')}catch(e){mirrorOk=false;mirrorErr=e.message||String(e)}
+  else{mirrorOk=false;mirrorErr='주 저장소 공간 확보를 위해 보조 복사본을 IndexedDB 백업으로 전환함';}
   try{sessionStorage.setItem(SESSION,JSON.stringify({at:saveAt,db:db}))}catch(e){}
   try{window.MATERIAL_DB=db;window.__dbfMaterialMemoryDB=clone(db)}catch(e){}
   if(opts.markSync!==false)markSync(saveAt);queueIdb(db,reason,!!opts.snapshot);
   if(opts.broadcast!==false&&bc)try{bc.postMessage({type:'materialSaved',at:saveAt,by:userName()})}catch(e){}
   if(opts.event!==false)try{window.dispatchEvent(new CustomEvent('bomDataChanged',{detail:{section:'materialDB',reason:reason||'v128-save'}}))}catch(e){}
-  if(ok)setStatus((opts.preserveStamp?'저장 확인 ':'저장됨 ')+nowText(saveAt).slice(11),'');else setStatus('브라우저 저장 오류 · 복구백업 확인','bad');
-  if(!ok)console.error('v128 원자재 저장 오류',err);return {ok:ok,db:db,error:err}
+  if(primaryOk)setStatus((opts.preserveStamp?'저장 확인 ':'저장됨 ')+nowText(saveAt).slice(11),'');
+  else{setStatus('복구저장소에 저장 중…','saving');idbSave(db,reason||'primary-storage-fallback',true).then(function(saved){setStatus(saved?'저장 확인 '+nowText(saveAt).slice(11):'저장 보호 필요 · 동기화 또는 백업 권장',saved?'':'warn')});}
+  if(!primaryOk)console.error('v128 원자재 주 저장소 오류',err);else if(!mirrorOk)console.warn('v128 원자재 보조 백업은 IndexedDB·세션 백업으로 유지됩니다.',mirrorErr);
+  return {ok:primaryOk,primaryOk:primaryOk,mirrorOk:mirrorOk,db:db,error:err,mirrorError:mirrorErr}
 }
 function findRow(db,y,k,ri,rid){var rows=(((db.years||{})[y]||{})[k]||[]),r=null;if(rid)r=rows.find(function(x){return String(x&&x._id||'')===String(rid)});if(!r)r=rows[Number(ri)];return r||null}
 function captureOne(t,db,at){
@@ -20376,7 +20417,7 @@ function visibleProducts(){var hidden=new Set((read(KEYS.hidden,[])||[]).map(Str
 function drawMap(){return read(KEYS.draw,{})||{}}
 function autoNonstandard(p){var s=clean(p&&p.item)+' '+clean(p&&p.spec);return /상하보강|이너프레임/i.test(s)||/\(L\)\s*$/i.test(clean(p&&p.item))}
 function usageOf(p,dm){var r=(dm||{})[String((p&&p.pn)||'')]||{},cats=['공용품','전용품','레이저','내부보강'];if(r.usageManual===true&&cats.indexOf(r.usage)>-1)return r.usage;var item=clean(p&&p.item);if(/\(L\)/i.test(item))return '레이저';if(/상하보강|이너프레임/i.test(item))return '내부보강';return r.usage==='전용품'?'전용품':'공용품'}
-function bomChildren(p){var code=clean(p&&p.pn);if(!code)return [];var base={},user={},alias={};try{base=(BOM_DATA&&BOM_DATA.bom)||{};alias=(BOM_DATA&&BOM_DATA.alias)||{}}catch(e){}try{user=(USER_BOM&&typeof USER_BOM==='object')?USER_BOM:read('dbfastec_cost_user_bom_v1',{})}catch(e){user=read('dbfastec_cost_user_bom_v1',{})}var norm=code.replace(/_[A-Z]$/,'');var key=base[code]||user[code]?code:(alias[code]||alias[norm]||(base[norm]||user[norm]?norm:null));if(!key){var idx=BOM_DATA&&BOM_DATA.__normIdx;if(!idx&&BOM_DATA){idx=BOM_DATA.__normIdx={};var ks=Object.keys(base);for(var i=0;i<ks.length;i++){var nn=ks[i].replace(/_[A-Z]$/,'');if(idx[nn]===undefined)idx[nn]=ks[i];}}if(idx&&idx[norm]!==undefined)key=idx[norm];}return [].concat((key&&base[key])||[],(key&&user[key])||[])}
+function bomChildren(p){var code=clean(p&&p.pn);if(!code)return [];var base={},user={},alias={};try{base=(BOM_DATA&&BOM_DATA.bom)||{};alias=(BOM_DATA&&BOM_DATA.alias)||{}}catch(e){}try{user=(USER_BOM&&typeof USER_BOM==='object')?USER_BOM:read('dbfastec_cost_user_bom_v1',{})}catch(e){user=read('dbfastec_cost_user_bom_v1',{})}var norm=code.replace(/_[A-Z]$/,'');var key=base[code]||user[code]?code:(alias[code]||alias[norm]||(base[norm]||user[norm]?norm:null));if(!key){var ks=Object.keys(base);for(var i=0;i<ks.length;i++){if(ks[i].replace(/_[A-Z]$/,'')===norm){key=ks[i];break}}}return [].concat((key&&base[key])||[],(key&&user[key])||[])}
 function aggregate(){
   var list=visibleProducts(),dm=drawMap(),groups={},equips={},procs={},usage={'공용품':0,'전용품':0,'레이저':0,'내부보강':0},drawHas=0,bomHas=0,missingEquip=0,missingProc=0,noSteps=0;
   list.forEach(function(p){
@@ -20412,7 +20453,7 @@ function visibleView(){var v=Array.prototype.find.call(document.querySelectorAll
 function setupDom(){
   var tabs=document.querySelector('header .tabs'),wrap=document.querySelector('.wrap');if(!tabs||!wrap)return false;
   var tab=id('tab-dashboard');if(!tab){tab=document.createElement('button');tab.id='tab-dashboard';tab.type='button';tab.textContent='메인';tab.onclick=function(){userNavigated=true;window.switchTab('dashboard')};tabs.insertBefore(tab,tabs.firstChild)}else{tab.textContent='메인'}
-  var view=id('view-dashboard');if(!view){view=document.createElement('div');view.id='view-dashboard';view.innerHTML='<div class="dashboard-shell"><div class="dashboard-kpis" id="dashboardKpis"></div><div class="dashboard-grid"><section class="dashboard-card span-8"><div class="dashboard-card-head"><h2>품목군별 제품 현황</h2><span class="sub">등록 제품 수 TOP 10</span><button onclick="window.dashGo(\'groupcost\')">전체 분석 ›</button></div><div class="dashboard-card-body" id="dashGroups"></div></section><section class="dashboard-card span-4"><div class="dashboard-card-head"><h2>제품 구분별 현황</h2><span class="sub">공용품 · 전용품 · 레이저 · 내부보강 수량/비중</span><button onclick="window.dashGo(\'usage\')">상세 ›</button></div><div class="dashboard-card-body" id="dashUsage"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>설비별 등록 현황</h2><span class="sub">포장·조립/포장 제외 · 적용 제품 수 TOP 10</span><button onclick="window.dashGo(\'equipanalysis\')">설비 분석 ›</button></div><div class="dashboard-card-body" id="dashEquip"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>공정별 등록 현황</h2><span class="sub">적용 제품 수 TOP 10</span><button onclick="window.dashGo(\'process\')">공정 분석 ›</button></div><div class="dashboard-card-body" id="dashProcess"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>도면 관리 현황</h2><span class="sub">보유율 · 담당자별 현황</span><button onclick="window.dashGo(\'draw\')">도면 관리 ›</button></div><div class="dashboard-card-body" id="dashDrawing"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>원자재 단가 게시판</h2><span class="sub">최근 월 평균 매입단가</span><button onclick="window.dashGo(\'matprice\')">단가 관리 ›</button></div><div class="dashboard-card-body" style="padding:0" id="dashMaterial"></div></section><section class="dashboard-card span-7"><div class="dashboard-card-head v1332-history-head"><h2>최근 수정이력</h2><span class="sub dashboard-history-policy v1332-history-policy">기간 제한 없음 · 시스템 최대 1,000건 · 제품별 최대 20건 · 공정별 최대 30건 · 현재 2026.07.07 ~ 2026.07.14</span><button onclick="window.dashHistory()">전체 이력 ›</button></div><div class="dashboard-card-body" style="padding:0" id="dashHistory"></div></section><section class="dashboard-card span-5"><div class="dashboard-card-head"><h2>관리 알림 게시판</h2><span class="sub">확인이 필요한 항목</span></div><div class="dashboard-card-body" id="dashNotices"></div></section></div><div class="dashboard-footnote"><span>※ 카드와 그래프를 클릭하면 해당 상세 화면 또는 필터 결과로 이동합니다.</span><span><button type="button" onclick="window.refreshMainDashboard()">↻ 새로고침</button> · <span id="dashboardFooterTime"></span></span></div></div>';wrap.insertBefore(view,wrap.firstChild)}
+  var view=id('view-dashboard');if(!view){view=document.createElement('div');view.id='view-dashboard';view.innerHTML='<div class="dashboard-shell"><div class="dashboard-kpis" id="dashboardKpis"></div><div class="dashboard-grid"><section class="dashboard-card span-8"><div class="dashboard-card-head"><h2>품목군별 제품 현황</h2><span class="sub">등록 제품 수 TOP 10</span><button onclick="window.dashGo(\'groupcost\')">전체 분석 ›</button></div><div class="dashboard-card-body" id="dashGroups"></div></section><section class="dashboard-card span-4"><div class="dashboard-card-head"><h2>제품 구분별 현황</h2><span class="sub">공용품 · 전용품 · 레이저 · 내부보강 수량/비중</span><button onclick="window.dashGo(\'usage\')">상세 ›</button></div><div class="dashboard-card-body" id="dashUsage"></div></section><section class="dashboard-card span-4"><div class="dashboard-card-head"><h2>제품 BOM 등록 현황</h2><span class="sub">하위 BOM 등록 · 미등록 비율</span><button onclick="window.dashGo(\'cost\')">상세 ›</button></div><div class="dashboard-card-body" id="dashBom"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>설비별 등록 현황</h2><span class="sub">포장·조립/포장 제외 · 적용 제품 수 TOP 10</span><button onclick="window.dashGo(\'equipanalysis\')">설비 분석 ›</button></div><div class="dashboard-card-body" id="dashEquip"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>공정별 등록 현황</h2><span class="sub">적용 제품 수 TOP 10</span><button onclick="window.dashGo(\'process\')">공정 분석 ›</button></div><div class="dashboard-card-body" id="dashProcess"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>도면 관리 현황</h2><span class="sub">보유율 · 담당자별 현황</span><button onclick="window.dashGo(\'draw\')">도면 관리 ›</button></div><div class="dashboard-card-body" id="dashDrawing"></div></section><section class="dashboard-card span-6"><div class="dashboard-card-head"><h2>원자재 단가 게시판</h2><span class="sub">최근 월 평균 매입단가</span><button onclick="window.dashGo(\'matprice\')">단가 관리 ›</button></div><div class="dashboard-card-body" style="padding:0" id="dashMaterial"></div></section><section class="dashboard-card span-7"><div class="dashboard-card-head v1332-history-head"><h2>최근 수정이력</h2><span class="sub dashboard-history-policy v1332-history-policy">기간 제한 없음 · 시스템 최대 1,000건 · 제품별 최대 20건 · 공정별 최대 30건 · 현재 2026.07.07 ~ 2026.07.14</span><button onclick="window.dashHistory()">전체 이력 ›</button></div><div class="dashboard-card-body" style="padding:0" id="dashHistory"></div></section><section class="dashboard-card span-5"><div class="dashboard-card-head"><h2>관리 알림 게시판</h2><span class="sub">확인이 필요한 항목</span></div><div class="dashboard-card-body" id="dashNotices"></div></section></div><div class="dashboard-footnote"><span>※ 카드와 그래프를 클릭하면 해당 상세 화면 또는 필터 결과로 이동합니다.</span><span><button type="button" onclick="window.refreshMainDashboard()">↻ 새로고침</button> · <span id="dashboardFooterTime"></span></span></div></div>';wrap.insertBefore(view,wrap.firstChild)}
   return true;
 }
 function applyDashboardVisibility(){document.querySelectorAll('.wrap>[id^="view-"]').forEach(function(v){v.classList.toggle('hidden',v.id!=='view-dashboard')});document.querySelectorAll('header .tabs>button').forEach(function(b){b.classList.toggle('on',b.id==='tab-dashboard')});var v=id('view-dashboard');if(v)v.classList.remove('hidden')}
@@ -20425,6 +20466,7 @@ function installBackFix(){
   setBackButtonState();
 }
 function installSwitchWrapper(){var cur=window.switchTab;if(cur&&cur.__dashboardV1291)return;if(typeof cur!=='function')return;wrappedSwitch=cur;var fn=function(t){t=String(t||'cost');var before=visibleView();activeView=t;if(t==='dashboard'){cameFromDashboard=false;if(!handlingBack&&history.state&&history.state.dbfMainDetail){try{history.replaceState({dbfMainDashboard:true},document.title)}catch(e){}}historyArmed=false;applyDashboardVisibility();renderDashboard();window.scrollTo(0,0);setTimeout(setBackButtonState,0);return}if(before==='dashboard'&&!handlingBack){cameFromDashboard=true;armBrowserHistory()}var d=id('view-dashboard'),tb=id('tab-dashboard');if(d)d.classList.add('hidden');if(tb)tb.classList.remove('on');var r=cur.apply(this,arguments);setTimeout(setBackButtonState,0);return r};fn.__dashboardV129=true;fn.__dashboardV1291=true;fn.__previous=cur;window.switchTab=fn}
+function labeledDonut(vals,names,colors,cBig,cSmall){var total=vals.reduce(function(a,b){return a+b},0)||1,start=0,parts=[];function pt(r,a){var q=(a-90)*Math.PI/180;return [50+r*Math.cos(q),50+r*Math.sin(q)]}function e(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})}vals.forEach(function(v,i){if(v<=0){return}var sweep=v/total*360,end=start+sweep,mid=start+sweep/2,ro=48,ri=25,p1=pt(ro,start),p2=pt(ro,end),q2=pt(ri,end),q1=pt(ri,start),large=sweep>180?1:0,d;if(sweep>=359.999){d='<path fill-rule="evenodd" d="M 50 2 A 48 48 0 1 1 49.999 2 Z M 50 25 A 25 25 0 1 0 50.001 25 Z" fill="'+colors[i]+'"></path>'}else{d='<path d="M '+p1[0].toFixed(3)+' '+p1[1].toFixed(3)+' A '+ro+' '+ro+' 0 '+large+' 1 '+p2[0].toFixed(3)+' '+p2[1].toFixed(3)+' L '+q2[0].toFixed(3)+' '+q2[1].toFixed(3)+' A '+ri+' '+ri+' 0 '+large+' 0 '+q1[0].toFixed(3)+' '+q1[1].toFixed(3)+' Z" fill="'+colors[i]+'"></path>'}var lp=pt(sweep<24?43:36.5,mid),rate=v/total*100,label=rate>=5?'<text class="dashboard-pie-label" x="'+lp[0].toFixed(2)+'" y="'+lp[1].toFixed(2)+'"><tspan class="cat" x="'+lp[0].toFixed(2)+'" dy="-1.7">'+e(names[i])+'</tspan><tspan class="rate" x="'+lp[0].toFixed(2)+'" dy="4.3">'+rate.toFixed(1)+'%</tspan></text>':'';parts.push('<g class="dashboard-pie-slice">'+d+label+'</g>');start=end;});return '<svg class="dashboard-pie" viewBox="0 0 100 100" role="img" aria-label="'+e(cSmall)+' 도넛그래프">'+parts.join('')+'<text class="dashboard-pie-center" x="50" y="49">'+e(cBig)+'</text><text class="dashboard-pie-center-sub" x="50" y="55">'+e(cSmall)+'</text></svg>';}
 function pieSvg(vals,names,colors){var total=vals.reduce(function(a,b){return a+b},0)||1,start=0,parts=[];function point(r,a){var q=(a-90)*Math.PI/180;return [50+r*Math.cos(q),50+r*Math.sin(q)]}vals.forEach(function(v,i){if(v<=0)return;var sweep=v/total*360,end=start+sweep,mid=start+sweep/2,ro=48,ri=25,p1=point(ro,start),p2=point(ro,end),q2=point(ri,end),q1=point(ri,start),large=sweep>180?1:0,d;if(sweep>=359.999){d='<path fill-rule="evenodd" d="M 50 2 A 48 48 0 1 1 49.999 2 Z M 50 25 A 25 25 0 1 0 50.001 25 Z" fill="'+colors[i]+'"></path>'}else{d='<path d="M '+p1[0].toFixed(3)+' '+p1[1].toFixed(3)+' A '+ro+' '+ro+' 0 '+large+' 1 '+p2[0].toFixed(3)+' '+p2[1].toFixed(3)+' L '+q2[0].toFixed(3)+' '+q2[1].toFixed(3)+' A '+ri+' '+ri+' 0 '+large+' 0 '+q1[0].toFixed(3)+' '+q1[1].toFixed(3)+' Z" fill="'+colors[i]+'"></path>'}var lp=point(sweep<24?43:36.5,mid),rate=v/total*100,short=names[i].replace('품','');var label=rate>=5?'<text class="dashboard-pie-label" x="'+lp[0].toFixed(2)+'" y="'+lp[1].toFixed(2)+'"><tspan class="cat" x="'+lp[0].toFixed(2)+'" dy="-1.7">'+esc(short)+'</tspan><tspan class="rate" x="'+lp[0].toFixed(2)+'" dy="4.3">'+pct(rate)+'</tspan></text>':(rate>0?'<text class="dashboard-pie-label" style="font-size:3px" x="'+lp[0].toFixed(2)+'" y="'+lp[1].toFixed(2)+'">'+pct(rate)+'</text>':'');parts.push('<g class="dashboard-pie-slice" data-usage="'+esc(names[i])+'">'+d+label+'</g>');start=end});return '<svg class="dashboard-pie" viewBox="0 0 100 100" role="img" aria-label="제품 구분별 비중 도넛그래프">'+parts.join('')+'<text class="dashboard-pie-center" x="50" y="49">'+money(total)+'</text><text class="dashboard-pie-center-sub" x="50" y="55">전체 제품</text></svg>'}
 function ownerStats(list,dm){var map={};list.forEach(function(p){var r=dm[String(p.pn||'')]||{},name=clean(r.owner)||'담당자 미지정';if(!map[name])map[name]={name:name,total:0,has:0};map[name].total++;if(r.has||clean(r.dwgFileId)||clean(r.pdfFileId)||clean(r.fileId))map[name].has++});return Object.keys(map).map(function(k){var x=map[k];x.rate=x.total?x.has/x.total*100:0;return x}).sort(function(a,b){if(a.name==='담당자 미지정')return 1;if(b.name==='담당자 미지정')return -1;return b.total-a.total||a.name.localeCompare(b.name,'ko')})}
 function renderDashboard(){
@@ -20434,10 +20476,11 @@ function renderDashboard(){
   setHtml('dashGroups',barRows(sortedMap(a.groups,10),'group',''));
   var un=['공용품','전용품','레이저','내부보강'],uv=un.map(function(n){return a.usage[n]||0}),uc=['#2f6fb0','#e08a00','#7c4dff','#1e9e5a'];
   setHtml('dashUsage','<div class="dashboard-pie-layout">'+pieSvg(uv,un,uc)+'<div class="dashboard-legend">'+un.map(function(n,i){return '<div class="dashboard-legend-row" data-usage="'+n+'"><i style="background:'+uc[i]+'"></i><span>'+n+'</span><b>'+money(uv[i])+'개 · '+pct(total?uv[i]/total*100:0)+'</b></div>'}).join('')+'</div></div>');
+  setHtml('dashBom','<div class="dashboard-bom-layout"><div class="dashboard-drawing-chart">'+labeledDonut([a.bomHas,Math.max(0,total-a.bomHas)],['등록','미등록'],['#2f6fb0','#d7dee8'],pct(bomRate),'BOM 등록률')+'<div class="dashboard-draw-counts"><span>등록 <b>'+money(a.bomHas)+'</b></span><span>미등록 <b style="color:#b56b00">'+money(Math.max(0,total-a.bomHas))+'</b></span></div></div></div>');
   var eq=sortedMap(a.equips,999,'products').filter(function(x){var n=clean(x.name).replace(/\s+/g,'');return n!=='포장'&&n!=='조립/포장'}).slice(0,10);
   setHtml('dashEquip',barRows(eq,'equip','green'));setHtml('dashProcess',barRows(sortedMap(a.procs,10,'products'),'proc','orange'));
   var drawVals=[a.drawHas,Math.max(0,total-a.drawHas)],drawColors=['#1e9e5a','#d7dee8'],allOwners=ownerStats(list,dm),unassignedOwner=allOwners.filter(function(o){return o.name==='담당자 미지정'})[0],owners=allOwners.filter(function(o){return o.name!=='담당자 미지정'}).slice(0,unassignedOwner?5:6);if(unassignedOwner)owners.push(unassignedOwner);
-  setHtml('dashDrawing','<div class="dashboard-drawing-layout"><div class="dashboard-drawing-chart"><div class="dashboard-donut" style="background:'+donutStyle(drawVals,drawColors)+'"><div class="dashboard-donut-center">'+pct(drawRate)+'<small>도면 보유율</small></div></div><div class="dashboard-draw-counts"><span>보유 <b>'+money(a.drawHas)+'</b></span><span>미등록 <b style="color:#b56b00">'+money(total-a.drawHas)+'</b></span></div></div><div><div class="dashboard-owner-title">담당자별 도면 현황</div><table class="dashboard-owner-table"><colgroup><col style="width:38%"><col style="width:20%"><col style="width:22%"><col style="width:20%"></colgroup><thead><tr><th>담당자</th><th class="num">제품</th><th class="num">도면 있음</th><th class="num">보유율</th></tr></thead><tbody>'+(owners.length?owners.map(function(o){return '<tr data-owner="'+encodeURIComponent(o.name)+'" style="cursor:pointer"><td class="strong" title="'+esc(o.name)+'">'+esc(o.name)+'</td><td class="num">'+money(o.total)+'</td><td class="num">'+money(o.has)+'</td><td class="num strong">'+pct(o.rate)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="dashboard-empty">담당자 정보 없음</td></tr>')+'</tbody></table></div></div>');
+  setHtml('dashDrawing','<div class="dashboard-drawing-layout"><div class="dashboard-drawing-chart">'+labeledDonut(drawVals,['보유','미등록'],drawColors,pct(drawRate),'도면 보유율')+'<div class="dashboard-draw-counts"><span>보유 <b>'+money(a.drawHas)+'</b></span><span>미등록 <b style="color:#b56b00">'+money(total-a.drawHas)+'</b></span></div></div><div><div class="dashboard-owner-title">담당자별 도면 현황</div><table class="dashboard-owner-table"><colgroup><col style="width:38%"><col style="width:20%"><col style="width:22%"><col style="width:20%"></colgroup><thead><tr><th>담당자</th><th class="num">제품</th><th class="num">도면 있음</th><th class="num">보유율</th></tr></thead><tbody>'+(owners.length?owners.map(function(o){return '<tr data-owner="'+encodeURIComponent(o.name)+'" style="cursor:pointer"><td class="strong" title="'+esc(o.name)+'">'+esc(o.name)+'</td><td class="num">'+money(o.total)+'</td><td class="num">'+money(o.has)+'</td><td class="num strong">'+pct(o.rate)+'</td></tr>'}).join(''):'<tr><td colspan="4" class="dashboard-empty">담당자 정보 없음</td></tr>')+'</tbody></table></div></div>');
   var mr=currentMaterialRows();setHtml('dashMaterial','<table class="dashboard-board"><colgroup><col style="width:16%"><col style="width:27%"><col style="width:13%"><col style="width:16%"><col style="width:13%"><col style="width:15%"></colgroup><thead><tr><th>강종</th><th>재질명</th><th>기준월</th><th class="num">평균 매입가</th><th class="num">전월 대비</th><th class="num">적용 기준가</th></tr></thead><tbody>'+mr.map(function(r){var c=r.change,cl=c>0?'up':c<0?'down':'flat',sg=c>0?'▲ ':c<0?'▼ ':'- ';return '<tr class="'+(r.scrap?'v1296-scrap-row':'')+'" '+(r.scrap?'data-v1296-go="matprice"':'onclick="window.dashGo(\'matprice\')"')+' style="cursor:pointer"><td class="strong">'+r.key+'</td><td>'+esc(r.name)+'</td><td>'+esc(r.ym)+'</td><td class="num strong">'+money(r.purchase)+'원</td><td class="num '+cl+'">'+sg+(c?money(Math.abs(c))+'원':'')+'</td><td class="num">'+money(r.market)+'원</td></tr>'}).join('')+'</tbody></table>');
   setHtml('dashHistory',h.length?'<table class="dashboard-board"><colgroup><col style="width:18%"><col style="width:15%"><col style="width:17%"><col style="width:50%"></colgroup><thead><tr><th>일시</th><th>수정자</th><th>구분</th><th>수정 내용</th></tr></thead><tbody>'+h.slice(0,7).map(function(r){return '<tr onclick="window.dashHistory()" style="cursor:pointer"><td>'+fmtDate(r.t,true)+'</td><td>'+esc(r.user)+'</td><td><span class="dashboard-status info">'+esc(r.cat)+'</span></td><td title="'+esc(r.detail)+'">'+esc(r.detail)+'</td></tr>'}).join('')+'</tbody></table>':'<div class="dashboard-empty">아직 등록된 수정이력이 없습니다.</div>');
   var matLatest=mr.filter(function(r){return !r.scrap}).map(function(r){return r.ym}).filter(function(x){return /^\d{4}-\d{2}$/.test(x)}).sort().pop()||'',currentYm=now.getFullYear()+'-'+pad(now.getMonth()+1),matOld=matLatest&&matLatest<currentYm;
@@ -24016,11 +24059,11 @@ function augmentRawList(list){
 }
 function installRawCount(){
   var fn=window.rawMaterialsList||((typeof rawMaterialsList==='function')?rawMaterialsList:null);
-  if(typeof fn==='function'&&!fn.__v1322RawBase){rawListBase=fn}
-  if(!rawListBase&&typeof fn==='function')rawListBase=fn.__v1322RawBase||fn;
-  if(typeof rawListBase==='function'){
-    var wrapped=function(){return augmentRawList(rawListBase.apply(this,arguments))};
-    wrapped.__v1322RawBase=rawListBase;window.rawMaterialsList=wrapped;try{rawMaterialsList=wrapped}catch(e){}
+  var __c=fn,__has=false,__d=0;while(typeof __c==='function'&&__d<2000){if(__c.__v1322RawBase){__has=true;break}__c=__c.__v12422Base||__c.__v1322RawBase;__d++}
+  if(typeof fn==='function'&&!__has){
+    var base=fn;rawListBase=base;
+    var wrapped=function(){return augmentRawList(base.apply(this,arguments))};
+    wrapped.__v1322RawBase=base;window.rawMaterialsList=wrapped;try{rawMaterialsList=wrapped}catch(e){}
   }
   var find=function(k){var u=buildRawIndex()[clean(k)]||buildRawIndex()[String(k)]||null;return u?u.uses.slice():[]};
   window.findProductsUsingRaw=find;try{findProductsUsingRaw=find}catch(e){}
@@ -26008,9 +26051,8 @@ function arrangeButtons(){
   ensureHiddenUi();
   var box=id('costSearchAdd'),filters=document.querySelector('#view-cost .filters'),hidden=id('hiddenProductListBtn'),deleted=id('deletedProductListBtn'),addBtn=document.querySelector('#costSearchAdd>.cost-add-product-btn,#costSearchAdd>button[onclick*="openAdd("]');
   var host=box||filters;if(!host)return;
-  if(deleted&&deleted.parentNode!==host)host.insertBefore(deleted,(hidden&&hidden.parentNode===host)?hidden:((addBtn&&addBtn.parentNode===host)?addBtn:null));
   if(hidden&&hidden.parentNode!==host)host.insertBefore(hidden,(addBtn&&addBtn.parentNode===host)?addBtn:null);
-  if(deleted&&hidden&&hidden.parentNode===host&&deleted.nextElementSibling!==hidden)host.insertBefore(deleted,hidden);
+  if(deleted&&(deleted.parentNode!==host||(hidden&&hidden.parentNode===host&&deleted.nextElementSibling!==hidden)))host.insertBefore(deleted,(hidden&&hidden.parentNode===host)?hidden:((addBtn&&addBtn.parentNode===host)?addBtn:null));
   updateHiddenButton();
 }
 document.addEventListener('click',function(e){
@@ -26096,9 +26138,8 @@ function ensureUi(){
 function arrangeButtons(){
   var box=id('costSearchAdd'),filters=document.querySelector('#view-cost .filters'),deleted=id('deletedProductListBtn'),hidden=id('hiddenProductListBtn'),host=box||filters;
   if(!host)return;
-  if(deleted&&deleted.parentNode!==host)host.insertBefore(deleted,(hidden&&hidden.parentNode===host)?hidden:null);
   if(hidden&&hidden.parentNode!==host)host.appendChild(hidden);
-  if(deleted&&hidden&&hidden.parentNode===host&&deleted.nextElementSibling!==hidden)host.insertBefore(deleted,hidden);
+  if(deleted&&(deleted.parentNode!==host||(hidden&&hidden.parentNode===host&&deleted.nextElementSibling!==hidden)))host.insertBefore(deleted,(hidden&&hidden.parentNode===host)?hidden:null);
 }
 function updateButton(){
   var b=id('deletedProductListBtn'),n=deletedList().length;if(!b)return;
@@ -26265,9 +26306,8 @@ function arrangeButtons(){
   ensureHiddenUi();ensureDeletedUi();
   var box=id('costSearchAdd'),filters=document.querySelector('#view-cost .filters'),host=box||filters,deleted=id('deletedProductListBtn'),hidden=id('hiddenProductListBtn');
   if(!host)return;
-  if(deleted&&deleted.parentNode!==host)host.insertBefore(deleted,(hidden&&hidden.parentNode===host)?hidden:null);
   if(hidden&&hidden.parentNode!==host)host.appendChild(hidden);
-  if(deleted&&hidden&&hidden.parentNode===host&&deleted.nextElementSibling!==hidden)host.insertBefore(deleted,hidden);
+  if(deleted&&(deleted.parentNode!==host||(hidden&&hidden.parentNode===host&&deleted.nextElementSibling!==hidden)))host.insertBefore(deleted,(hidden&&hidden.parentNode===host)?hidden:null);
 }
 function updateButtons(){
   var hb=id('hiddenProductListBtn'),hc=hb&&hb.querySelector('.hidden-count'),hn=hiddenList().length;
@@ -26680,7 +26720,7 @@ function latestHistoryAt(pn){var map=mergedHistoryV1349(),arr=Array.isArray(map[
 function restoreGuards(){var guards=read(GUARD_KEY,{}),a=products(),changed=false;Object.keys(guards).forEach(function(pn){var g=guards[pn],p=a.find(function(x){return clean(x&&x.pn)===clean(pn)});if(!p||!g||!Array.isArray(g.steps))return;var pat=time(p._processUpdatedAt),hat=latestHistoryAt(pn),gat=time(g.at);if(gat>=pat&&gat>=hat&&!sameSteps(p.steps,g.steps)){p.steps=clone(g.steps);p._processUpdatedAt=gat;p._processUpdatedBy=clean(g.by)||p._processUpdatedBy||'저장값 복구';changed=true}});if(changed){write(PROD_KEY,a);try{PRODUCTS=a;window.PRODUCTS=a}catch(e){}try{if(typeof window.renderCost==='function')window.renderCost(false)}catch(e){}}return changed}
 ['bomSyncApplied','bomDataChanged'].forEach(function(n){window.addEventListener(n,function(){setTimeout(restoreGuards,40)})});window.addEventListener('storage',function(e){if(e&&[PROD_KEY,HIST_KEY].indexOf(e.key)>=0)setTimeout(restoreGuards,50)});
 function quickModal(){if(recalcFrame)return;recalcFrame=requestAnimationFrame(function(){recalcFrame=0;var sum=0;document.querySelectorAll('#overlay #stepbody tr').forEach(function(tr){var st=Number(clean(tr.querySelector('.d-st')&&tr.querySelector('.d-st').value).replace(/,/g,''))||0,proc=clean(tr.querySelector('.d-proc')&&tr.querySelector('.d-proc').value),pr={};try{pr=typeof window.priceOf==='function'?window.priceOf(proc)||{}:(window.PRICES&&window.PRICES[proc])||{}}catch(e){}var mode=(tr.querySelector('.d-mode-select')&&tr.querySelector('.d-mode-select').value)||(pr.mode==='flat'?'flat':'time'),q=Number(clean(tr.querySelector('.d-qty')&&tr.querySelector('.d-qty').value).replace(/,/g,''))||1,base=mode==='flat'?(Number(pr.flat)||0):st*(Number(pr.rate)||0),applied=mode==='flat'?base*q:base,ov=tr.querySelector('.stepov'),v=ov&&clean(ov.value);sum+=v!==''?(Number(v.replace(/,/g,''))||0):applied;var be=tr.querySelector('.d-base');if(be)be.textContent=Math.round(base).toLocaleString('ko-KR');var me=tr.querySelector('.d-mode');if(me)me.textContent=mode==='flat'?'수량단가':'시간기준'});var ps=id('m-procsum');if(ps)ps.textContent=Math.round(sum).toLocaleString('ko-KR')})}
-function installFastRecalcFinal(){var cur=window.recalcModal;if(cur&&cur.__v1348IdleRecalc)return;if(typeof cur==='function')recalcBase=cur;var fn=function(){quickModal();clearTimeout(recalcTimer);var args=arguments,self=this;recalcTimer=setTimeout(function(){if(typeof recalcBase==='function'&&recalcBase!==fn)try{recalcBase.apply(self,args)}catch(e){}},220)};fn.__v1348IdleRecalc=true;window.recalcModal=fn;try{recalcModal=fn}catch(e){}}
+function installFastRecalcFinal(){var cur=window.recalcModal;if(cur&&cur.__v1348IdleRecalc)return;if(typeof cur==='function')recalcBase=cur;var fn=function(){quickModal();clearTimeout(recalcTimer);var args=arguments,self=this;recalcTimer=setTimeout(function(){if(typeof recalcBase==='function'&&recalcBase!==fn)try{recalcBase.apply(self,args)}catch(e){}},650)};fn.__v1348IdleRecalc=true;window.recalcModal=fn;try{recalcModal=fn}catch(e){}}
 function fmt(t){try{return new Date(Number(t)||Date.parse(t)).toLocaleString('ko-KR')}catch(e){return ''}}
 function allHistoryRows(){var out=[],push=function(t,u,c,d,pn,src){t=time(t);if(!t)return;out.push({t:t,u:clean(u)||'이름없음',c:clean(c)||'수정',d:clean(d),pn:clean(pn),src:src||''})};[read(EDIT_KEY,[]),read(SHADOW_KEY,[])].forEach(function(a){if(Array.isArray(a))a.forEach(function(x){push(x.t||x.at,x.u||x.user||x.by,x.c||x.cat,x.d||x.detail,x.pn,'edit')})});var hm=mergedHistoryV1349();Object.keys(hm||{}).forEach(function(pn){(Array.isArray(hm[pn])?hm[pn]:[]).forEach(function(x){var b=Array.isArray(x.before)?x.before.length:'-',a=Array.isArray(x.after)?x.after.length:'-';push(x.at,x.by,'공정수정',pn+' · 공정 '+b+'→'+a+'개',pn,'process')})});var ov=read(OV_KEY,{});Object.keys(ov||{}).forEach(function(pn){var h=ov[pn]&&ov[pn]._editHistory;if(Array.isArray(h))h.forEach(function(x){push(x.at||x.t,x.by||x.user,'원가수정',x.detail||x.d||pn,pn,'override')})});var seen={};out=out.filter(function(x){var k=[x.t,x.u,x.c,x.d,x.pn].join('|');if(seen[k])return false;seen[k]=1;return true});out.sort(function(a,b){return b.t-a.t});return out.slice(0,2000)}
 function renderHistoryOverlay(selected){var ov=id('v1348AllHistoryOverlay');if(!ov)return;var q=clean(ov.querySelector('input').value).toLowerCase(),rows=allHistoryRows().filter(function(x){return !q||[x.u,x.c,x.d,x.pn].join(' ').toLowerCase().indexOf(q)>=0}),body=ov.querySelector('tbody'),empty=ov.querySelector('.v1348-empty'),count=ov.querySelector('.v1348-history-count');count.textContent='전체 사용자 · '+rows.length+'건';body.innerHTML=rows.map(function(x){return '<tr'+(selected&&String(x.t)===String(selected)?' style="background:#fff8db"':'')+'><td>'+esc(fmt(x.t))+'</td><td><b>'+esc(x.u)+'</b></td><td>'+esc(x.c)+'</td><td>'+esc(x.d||x.pn)+'</td></tr>'}).join('');empty.style.display=rows.length?'none':'block'}
@@ -27117,127 +27157,354 @@ window.addEventListener('storage',function(e){if(!e.key||[PROD_KEY,PATCH_KEY,LAT
 })();
 </script>
 <!-- ===== /V135.2 ===== -->
-<script id="v137-smooth-stepdrag">
-/* ===== V137 성능개선: 공정단계 순서변경 드래그 부드럽게 =====
-   기존: 네이티브 HTML5 드래그(detailDragStartV8/OverV8/DropV8) — 브라우저 기본 드래그
-         고스트 때문에 실제 PC에서 느리고 끊김, 매 이동마다 getBoundingClientRect 리플로우.
-   개선: 네이티브 드래그를 무력화하고 pointer 이벤트 기반으로 교체.
-         - 이동 중에는 rAF로 1프레임당 1회만 순서 재배치 + 번호 갱신(가벼움)
-         - 무거운 전체 재계산(recalcModal)은 "놓는 순간" 1회만 실행
-   기능/저장 데이터는 동일: <tr> 실제 DOM 순서를 바꾸므로 저장(readModalSteps)이 그대로 반영됨. */
+
+<!-- ===== V135.3 MAIN DASHBOARD CARD REMOVAL ===== -->
+<script id="v1353-main-dashboard-card-removal">
 (function(){
   'use strict';
-  if(window.__v137StepDragLoaded)return; window.__v137StepDragLoaded=true;
-
-  var HANDLE_SEL='.detail-drag,.qk-drag,td.drag,.drag';
-  function bodyOf(el){ return el&&el.closest?el.closest('#stepbody'):null; }
-
-  /* 1) 네이티브 드래그 무력화: #stepbody 안에서 시작되는 dragstart를 캡처 단계에서 차단 */
-  document.addEventListener('dragstart',function(e){
-    if(e.target&&e.target.closest&&e.target.closest('#stepbody')){
-      e.preventDefault();
-      if(e.stopImmediatePropagation)e.stopImmediatePropagation();
-    }
-  },true);
-
-  var dragRow=null, body=null, pointerY=0, rafPending=false, handleEl=null, pid=null;
-
-  function renumberLight(){
-    var rows=body.children, i, n=rows.length;
-    for(i=0;i<n;i++){
-      var no=rows[i].querySelector('.stno,.detail-step-no,.qk-step-no');
-      if(no)no.textContent=i+1;
-    }
+  var removeIds=['dashGroups','dashEquip','dashProcess','dashGubunProcess'];
+  function removeCards(){
+    removeIds.forEach(function(id){
+      var target=document.getElementById(id);
+      var card=target&&target.closest('section.dashboard-card');
+      if(card)card.remove();
+    });
   }
-
-  function applyMove(){
-    rafPending=false;
-    if(!dragRow||!body)return;
-    var rows=body.children, before=null, i, n=rows.length;
-    for(i=0;i<n;i++){
-      var r=rows[i]; if(r===dragRow)continue;
-      var rect=r.getBoundingClientRect();
-      if(pointerY < rect.top+rect.height/2){ before=r; break; }
-    }
-    if(before){ if(dragRow.nextSibling!==before) body.insertBefore(dragRow,before); }
-    else { if(body.lastChild!==dragRow) body.appendChild(dragRow); }
-    renumberLight();
+  function install(){
+    removeCards();
+    var grid=document.querySelector('#view-dashboard .dashboard-grid');
+    if(!grid||grid.__v1353CardRemoval)return;
+    grid.__v1353CardRemoval=true;
+    new MutationObserver(removeCards).observe(grid,{childList:true,subtree:true});
   }
-
-  function onMove(e){
-    if(!dragRow)return;
-    pointerY=e.clientY;
-    if(!rafPending){ rafPending=true; requestAnimationFrame(applyMove); }
-  }
-
-  function cleanup(){
-    if(handleEl&&pid!=null){ try{ handleEl.releasePointerCapture(pid); }catch(_){} }
-    window.removeEventListener('pointermove',onMove,true);
-    window.removeEventListener('pointerup',onUp,true);
-    window.removeEventListener('pointercancel',onUp,true);
-    if(dragRow)dragRow.classList.remove('v137-dragging');
-    document.body.classList.remove('v137-dragging-active');
-  }
-
-  function onUp(){
-    var had=!!dragRow;
-    cleanup();
-    dragRow=null; handleEl=null; pid=null; body=null;
-    if(had){
-      try{ if(typeof window.renumSteps==='function')window.renumSteps(); }catch(_){}
-      try{ if(typeof window.recalcModal==='function')window.recalcModal(); }catch(_){}
-    }
-  }
-
-  document.addEventListener('pointerdown',function(e){
-    if(e.button!=null&&e.button!==0)return;               /* 왼쪽 버튼만 */
-    var t=e.target; if(!t||!t.closest)return;
-    var handle=t.closest(HANDLE_SEL); if(!handle)return;
-    var b=bodyOf(handle); if(!b)return;                    /* #stepbody 안에서만 */
-    var row=handle.closest('tr'); if(!row)return;
-    e.preventDefault();
-    if(e.stopPropagation)e.stopPropagation();
-    body=b; dragRow=row; handleEl=handle; pid=e.pointerId;
-    dragRow.classList.add('v137-dragging');
-    document.body.classList.add('v137-dragging-active');
-    try{ handle.setPointerCapture(e.pointerId); }catch(_){}
-    window.addEventListener('pointermove',onMove,true);
-    window.addEventListener('pointerup',onUp,true);
-    window.addEventListener('pointercancel',onUp,true);
-  },true);
-
-  /* 시각 피드백(페인트 전용 속성만 사용 → 리플로우 최소화) */
-  var st=document.createElement('style');
-  st.textContent=
-    '#stepbody tr.v137-dragging{opacity:.92;box-shadow:0 6px 18px rgba(20,40,90,.22);'+
-    'background:#eef4ff !important;position:relative;z-index:5;cursor:grabbing}'+
-    'body.v137-dragging-active{cursor:grabbing;user-select:none}'+
-    'body.v137-dragging-active #stepbody input{pointer-events:none}'+
-    HANDLE_SEL.split(',').map(function(s){return '#stepbody '+s;}).join(',')+'{cursor:grab;touch-action:none}';
-  document.head.appendChild(st);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  window.addEventListener('load',function(){[0,250,1000,2500].forEach(function(ms){setTimeout(install,ms)})},{once:true});
 })();
 </script>
+<!-- ===== /V135.3 ===== -->
 
-<script id="v138-material-input-debounce">
-/* ===== V138 성능개선: 재료비 치수/단가 입력 지연·먹통 해결 =====
-   원인: 재료비 입력칸(두께 m-thickness, 재료폭 m-width, 길이 m-length, 단가 등 12개)이
-         각 타건마다 oninput="recalcModal()"로 전체 재계산을 "디바운스 없이 동기" 실행 →
-         행이 많거나 느린 PC에서 한 박자 늦고 숫자 입력이 잘 안 됨.
-         (v1347 고속 재계산은 #stepbody 전용이라 재료비 칸은 미적용이었음.)
-   해결: 타건은 즉시 반영하고, 무거운 재계산은 입력을 멈춘 뒤 160ms 후 1회만 실행.
-   계산 로직/값은 그대로 — 호출 시점만 디바운스. */
+<!-- ===== V135.4 DRAWING DASHBOARD SIMPLIFICATION ===== -->
+<style id="v1354-drawing-dashboard-style">
+/* 제품 구분별 현황 · 도면 관리 · 원자재 단가를 한 줄에 균등 배치 */
+#view-dashboard .dashboard-grid > .v1354-usage-card{grid-column:span 4!important}
+#view-dashboard .dashboard-grid > .v1354-drawing-card,
+#view-dashboard .dashboard-grid > .v1354-material-card{grid-column:span 4!important}
+
+/* 도면 관리: 보유율 원형 그래프만 표시하고 제품 구분별 그래프와 같은 크기로 통일 */
+#dashDrawing .dashboard-drawing-layout{display:flex!important;align-items:center!important;justify-content:center!important;min-height:250px!important}
+#dashDrawing .dashboard-drawing-chart{width:100%;gap:10px!important}
+#dashDrawing .dashboard-donut{width:232px!important;height:232px!important}
+#dashDrawing .dashboard-donut:after{inset:46px!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > .v1354-usage-card,
+  #view-dashboard .dashboard-grid > .v1354-drawing-card,
+  #view-dashboard .dashboard-grid > .v1354-material-card{grid-column:span 12!important}
+}
+</style>
+<script id="v1354-drawing-dashboard-script">
 (function(){
   'use strict';
-  if(window.__v138MatDebounce)return; window.__v138MatDebounce=true;
-  var t=null;
-  window.recalcModalDebounced=function(){
-    if(t)clearTimeout(t);
-    t=setTimeout(function(){
-      t=null;
-      try{ if(typeof window.recalcModal==='function') window.recalcModal(); }catch(e){}
-    },160);
-  };
+  var timer=0;
+  function card(id){var el=document.getElementById(id);return el&&el.closest('section.dashboard-card')}
+  function setSpan(el,span,className){
+    if(!el)return;
+    el.classList.remove('span-4','span-5','span-6','span-7','span-8','span-12');
+    el.classList.add('span-'+span,className);
+  }
+  function apply(){
+    var grid=document.querySelector('#view-dashboard .dashboard-grid');
+    var usage=card('dashUsage'),drawing=card('dashDrawing'),material=card('dashMaterial');
+    if(!grid||!usage||!drawing||!material)return;
+    setSpan(usage,4,'v1354-usage-card');
+    setSpan(drawing,4,'v1354-drawing-card');
+    setSpan(material,4,'v1354-material-card');
+    var subtitle=drawing.querySelector('.dashboard-card-head .sub');
+    if(subtitle)subtitle.textContent='보유율';
+    var layout=document.querySelector('#dashDrawing .dashboard-drawing-layout');
+    if(layout){
+      Array.prototype.slice.call(layout.children,1).forEach(function(el){el.remove()});
+    }
+  }
+  function schedule(){clearTimeout(timer);timer=setTimeout(apply,0)}
+  function install(){
+    apply();
+    var grid=document.querySelector('#view-dashboard .dashboard-grid');
+    if(!grid||grid.__v1354DrawingDashboard)return;
+    grid.__v1354DrawingDashboard=true;
+    new MutationObserver(schedule).observe(grid,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  window.addEventListener('load',function(){[0,250,1000,2500].forEach(function(ms){setTimeout(install,ms)})},{once:true});
 })();
 </script>
+<!-- ===== /V135.4 ===== -->
+
+<!-- ===== V135.5: 메인 도면 관리 폭 축소 · 원자재 단가 확장 ===== -->
+<style id="v1355-dashboard-card-width-style">
+/* 제품 구분(1/3) · 도면 관리(1/6) · 원자재 단가(1/2)를 한 줄에 배치 */
+#view-dashboard .dashboard-grid > .v1354-usage-card{grid-column:span 4!important}
+#view-dashboard .dashboard-grid > .v1354-drawing-card{grid-column:span 2!important}
+#view-dashboard .dashboard-grid > .v1354-material-card{grid-column:span 6!important}
+
+/* 폭이 줄어든 도면 카드는 원형 그래프가 카드 안에 안정적으로 들어가도록 조정 */
+#dashDrawing .dashboard-drawing-layout{min-height:250px!important}
+#dashDrawing .dashboard-donut{width:min(100%,190px)!important;height:auto!important;aspect-ratio:1/1!important}
+#dashDrawing .dashboard-donut:after{inset:36px!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > .v1354-usage-card,
+  #view-dashboard .dashboard-grid > .v1354-drawing-card,
+  #view-dashboard .dashboard-grid > .v1354-material-card{grid-column:span 12!important}
+}
+</style>
+<script id="v1355-dashboard-card-width-script">
+(function(){
+  'use strict';
+  function apply(){
+    var usage=document.getElementById('dashUsage'),drawing=document.getElementById('dashDrawing'),material=document.getElementById('dashMaterial');
+    usage=usage&&usage.closest('section.dashboard-card');
+    drawing=drawing&&drawing.closest('section.dashboard-card');
+    material=material&&material.closest('section.dashboard-card');
+    if(usage){usage.classList.remove('span-2','span-4','span-5','span-6','span-7','span-8','span-12');usage.classList.add('span-4','v1354-usage-card')}
+    if(drawing){drawing.classList.remove('span-2','span-4','span-5','span-6','span-7','span-8','span-12');drawing.classList.add('span-2','v1354-drawing-card')}
+    if(material){material.classList.remove('span-2','span-4','span-5','span-6','span-7','span-8','span-12');material.classList.add('span-6','v1354-material-card')}
+  }
+  function install(){
+    apply();
+    var grid=document.querySelector('#view-dashboard .dashboard-grid');
+    if(!grid||grid.__v1355CardWidth)return;
+    grid.__v1355CardWidth=true;
+    new MutationObserver(function(){setTimeout(apply,0)}).observe(grid,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  window.addEventListener('load',function(){[0,250,1000,2500].forEach(function(ms){setTimeout(install,ms)})},{once:true});
+})();
+</script>
+<!-- ===== /V135.5 ===== -->
+
+<!-- ===== V135.6: 도면 담당자 현황 완전 숨김 · 하단 카드 순서 조정 ===== -->
+<style id="v1356-dashboard-drawing-position-style">
+/* 렌더링 중에도 담당자별 도면 현황은 표시하지 않음 */
+#dashDrawing .dashboard-drawing-layout > :not(.dashboard-drawing-chart),
+#dashDrawing .dashboard-owner-title,
+#dashDrawing .dashboard-owner-table,
+#dashDrawing .v1296-drawing-file-wrap,
+#dashDrawing .v1298-drawing-file-wrap{display:none!important}
+
+/* 관리 알림 게시판 · 도면 관리 현황 · 최근 수정이력을 한 줄에 배치 */
+#view-dashboard .dashboard-grid > .v1356-notice-card{grid-column:span 5!important}
+#view-dashboard .dashboard-grid > .v1354-drawing-card{grid-column:span 2!important}
+#view-dashboard .dashboard-grid > .v1356-history-card{grid-column:span 5!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > .v1356-notice-card,
+  #view-dashboard .dashboard-grid > .v1354-drawing-card,
+  #view-dashboard .dashboard-grid > .v1356-history-card{grid-column:span 12!important}
+}
+</style>
+<script id="v1356-dashboard-drawing-position-script">
+(function(){
+  'use strict';
+  var timer=0;
+  function card(id){var el=document.getElementById(id);return el&&el.closest('section.dashboard-card')}
+  function setSpan(el,span,className){
+    if(!el)return;
+    el.classList.remove('span-2','span-4','span-5','span-6','span-7','span-8','span-12');
+    el.classList.add('span-'+span,className);
+  }
+  function apply(){
+    var grid=document.querySelector('#view-dashboard .dashboard-grid'),notice=card('dashNotices'),drawing=card('dashDrawing'),history=card('dashHistory');
+    if(!grid||!notice||!drawing||!history)return;
+    setSpan(notice,5,'v1356-notice-card');
+    setSpan(drawing,2,'v1354-drawing-card');
+    setSpan(history,5,'v1356-history-card');
+    if(notice.nextElementSibling!==drawing)grid.insertBefore(notice,drawing);
+    if(drawing.nextElementSibling!==history)grid.insertBefore(drawing,history);
+  }
+  function schedule(){clearTimeout(timer);timer=setTimeout(apply,0)}
+  function install(){
+    apply();
+    var grid=document.querySelector('#view-dashboard .dashboard-grid');
+    if(!grid||grid.__v1356DrawingPosition)return;
+    grid.__v1356DrawingPosition=true;
+    new MutationObserver(schedule).observe(grid,{childList:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  window.addEventListener('load',function(){[0,250,1000,2500].forEach(function(ms){setTimeout(install,ms)})},{once:true});
+})();
+</script>
+<!-- ===== /V135.6 ===== -->
+
+<!-- ===== V135.7: 도면 보유율 확대 · 원자재 단가 우측 정렬 ===== -->
+<style id="v1357-dashboard-finish-style">
+/* 도면 관리 현황의 보유율 원형 그래프를 한 단계 확대 */
+#dashDrawing .dashboard-donut{width:min(100%,215px)!important;height:auto!important;aspect-ratio:1/1!important}
+#dashDrawing .dashboard-donut:after{inset:40px!important}
+
+/* 제품 구분별 현황(4칸) 뒤 원자재 단가 게시판이 우측 끝까지 채움 */
+#view-dashboard .dashboard-grid > .v1354-material-card{grid-column:span 8!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > .v1354-material-card{grid-column:span 12!important}
+}
+</style>
+<!-- ===== /V135.7 ===== -->
+
+<!-- ===== V136.0: 메인 하단 카드 배치 고정 · BOM 등록 현황 카드 ===== -->
+<style id="v1360-dashboard-layout-lock-style">
+/* 로딩 중 카드가 자리를 잡느라 움직이지 않도록 첫 렌더부터 최종 배치를 CSS로 고정.
+   DOM 순서와 무관하게 order 로 시각 순서를 고정하고 span 을 최종값으로 못박는다. */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashNotices){grid-column:span 5!important;order:1!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashDrawing){grid-column:span 2!important;order:2!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashHistory){grid-column:span 5!important;order:3!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage){grid-column:span 4!important;order:4!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom){grid-column:span 2!important;order:5!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 6!important;order:6!important}
+
+/* 새 BOM 등록 현황 카드: 도면 보유율과 동일한 도넛 스타일 */
+#dashBom .dashboard-bom-layout{display:flex;align-items:center;justify-content:center;min-height:250px}
+#dashBom .dashboard-drawing-chart{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+#dashBom .dashboard-donut{width:min(100%,205px)!important;height:auto!important;aspect-ratio:1/1!important;margin:auto}
+#dashBom .dashboard-donut:after{inset:40px!important}
+#dashBom .dashboard-donut-center small{font-size:10px;color:#7b8a9d;font-weight:800;margin-top:3px}
+#dashBom .dashboard-draw-counts{display:flex;gap:18px;font-size:12px;font-weight:800;color:#31415c;margin-top:2px}
+#dashBom .dashboard-draw-counts b{font-size:14px;color:#16284a}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashNotices),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashDrawing),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashHistory),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 12!important;order:0!important}
+}
+</style>
+<!-- ===== /V136.0 ===== -->
+
+<!-- ===== V136.1: BOM·도면 도넛을 라벨형 SVG로 통일 · 크기 동일화 ===== -->
+<style id="v1361-labeled-donut-style">
+/* BOM 등록 현황 카드를 도면 관리 현황 카드와 동일 크기(span-2)로, 도넛도 동일 크기로 */
+#dashBom .dashboard-bom-layout{display:flex;align-items:center;justify-content:center;min-height:250px}
+#dashBom .dashboard-drawing-chart{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+#dashDrawing .dashboard-pie,
+#dashBom .dashboard-pie{width:min(100%,192px)!important;height:auto!important;aspect-ratio:1/1!important;margin:auto;overflow:visible}
+/* 슬라이스 안 글자(제품 구분별 현황처럼)와 가운데 비율 글자 크기 */
+#dashDrawing .dashboard-pie-label,
+#dashBom .dashboard-pie-label{font-size:5px!important;font-weight:900!important}
+#dashDrawing .dashboard-pie-label .cat,
+#dashBom .dashboard-pie-label .cat{font-size:4.2px!important;font-weight:900!important}
+#dashDrawing .dashboard-pie-label .rate,
+#dashBom .dashboard-pie-label .rate{font-size:5px!important;font-weight:900!important}
+#dashDrawing .dashboard-pie-center,
+#dashBom .dashboard-pie-center{font-size:8px!important;font-weight:900!important}
+#dashDrawing .dashboard-pie-center-sub,
+#dashBom .dashboard-pie-center-sub{font-size:3.6px!important;font-weight:900!important}
+#dashBom .dashboard-draw-counts{display:flex;gap:16px;font-size:12px;font-weight:800;color:#31415c;margin-top:2px}
+#dashBom .dashboard-draw-counts b{font-size:14px;color:#16284a}
+</style>
+<!-- ===== /V136.1 ===== -->
+
+<!-- ===== V136.2: BOM·도면 카드 및 원형 그래프 확대 ===== -->
+<style id="v1362-bom-drawing-card-enlarge-style">
+/* 두 카드의 폭을 같은 크기로 한 단계 확대하고, 한 줄 배치는 유지 */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashNotices){grid-column:span 4!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashDrawing){grid-column:span 3!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashHistory){grid-column:span 5!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage){grid-column:span 3!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom){grid-column:span 3!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 6!important}
+
+/* 제품 BOM 등록 현황과 도면 관리 현황의 원형 그래프를 동일한 크기로 통일 */
+#dashDrawing .dashboard-pie,
+#dashBom .dashboard-pie{width:min(100%,215px)!important;height:auto!important;aspect-ratio:1/1!important}
+</style>
+<!-- ===== /V136.2 ===== -->
+
+<!-- ===== V136.3: BOM·도면 원형 그래프 카드 채움 ===== -->
+<style id="v1363-bom-drawing-full-card-style">
+/* 카드 내부 여백을 줄이고 원형 그래프가 카드 폭을 충분히 활용하도록 확대 */
+#dashDrawing .dashboard-drawing-layout,
+#dashBom .dashboard-bom-layout{min-height:360px!important}
+#dashDrawing .dashboard-drawing-chart,
+#dashBom .dashboard-drawing-chart{gap:6px!important}
+#dashDrawing.dashboard-card-body,
+#dashBom.dashboard-card-body{padding:7px 8px!important}
+#dashDrawing .dashboard-pie,
+#dashBom .dashboard-pie{width:min(100%,340px)!important;height:auto!important;aspect-ratio:1/1!important}
+</style>
+<!-- ===== /V136.3 ===== -->
+
+<!-- ===== V136.4: 제품 구분별 현황과 동일한 그래프 크기 ===== -->
+<style id="v1364-bom-drawing-usage-size-style">
+/* 제품 구분별 현황 도넛(232px)과 동일한 크기로 맞춤 */
+#dashDrawing .dashboard-drawing-layout,
+#dashBom .dashboard-bom-layout{min-height:270px!important}
+#dashDrawing.dashboard-card-body,
+#dashBom.dashboard-card-body{padding:10px 12px!important}
+#dashDrawing .dashboard-pie,
+#dashBom .dashboard-pie{width:232px!important;height:232px!important;max-width:100%!important;aspect-ratio:1/1!important}
+</style>
+<!-- ===== /V136.4 ===== -->
+
+<!-- ===== V136.5: BOM·도면 카드 1/3 축소 · 인접 게시판 확장 ===== -->
+<style id="v1365-bom-drawing-compact-layout-style">
+/* 도면 관리 현황: 3칸 → 2칸, 줄어든 1칸은 관리 알림 게시판에 반영 */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashNotices){grid-column:span 5!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashDrawing){grid-column:span 2!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashHistory){grid-column:span 5!important}
+
+/* 제품 BOM 등록 현황: 3칸 → 2칸, 줄어든 1칸은 원자재 단가 게시판에 반영 */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage){grid-column:span 3!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom){grid-column:span 2!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 7!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashNotices),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashDrawing),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashHistory),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 12!important}
+}
+</style>
+<!-- ===== /V136.5 ===== -->
+
+<!-- ===== V136.6: 제품 구분별 현황 확장 · BOM 현황 축소 ===== -->
+<style id="v1366-usage-expanded-bom-compact-style">
+/* 제품 구분별 현황에 1칸을 추가하고, 같은 폭만큼 BOM 등록 현황에서 축소 */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage){grid-column:span 4!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom){grid-column:span 1!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 7!important}
+
+/* 좁아진 BOM 카드에서는 그래프가 폭에 맞춰 축소되도록 유지 */
+#dashBom .dashboard-pie{width:232px!important;max-width:100%!important;height:auto!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 12!important}
+}
+</style>
+<!-- ===== /V136.6 ===== -->
+
+<!-- ===== V136.7: BOM 등록 현황을 도면 관리 현황과 같은 폭으로 통일 ===== -->
+<style id="v1367-bom-matches-drawing-style">
+/* 도면 관리 현황과 제품 BOM 등록 현황을 모두 2칸 폭으로 통일 */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashDrawing){grid-column:span 2!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom){grid-column:span 2!important}
+
+/* 같은 줄의 총 폭(4 + 2 + 6 = 12)을 유지 */
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage){grid-column:span 4!important}
+#view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 6!important}
+
+@media(max-width:1100px){
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashUsage),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashBom),
+  #view-dashboard .dashboard-grid > section.dashboard-card:has(> #dashMaterial){grid-column:span 12!important}
+}
+</style>
+<!-- ===== /V136.7 ===== -->
+
 </body>
 </html>
