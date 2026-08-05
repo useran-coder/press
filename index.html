@@ -27525,7 +27525,120 @@ window.addEventListener('storage',function(e){if(!e.key||[PROD_KEY,PATCH_KEY,LAT
 <!-- ===== /V136.8 ===== -->
 
 
-<!-- ===== V137.2 : 제품목록 보호(PRODGUARD) + 원자재 단가 보호(MATGUARD) ===== -->
+<!-- ===== V137.4 : 저장공간 한도 보호 + 제품/원자재 보호 + 백업 안전복원 ===== -->
+<script id="quotaguard-core">
+(function(){
+'use strict';
+if(window.__quotaGuardV1)return; window.__quotaGuardV1=true;
+
+/* ============================================================================
+   저장공간 한도 보호 (QUOTAGUARD v1.0)
+
+   [오류]
+   Failed to execute 'setItem' on 'Storage':
+   Setting the value of 'dbfastec_sync_recovery_v124' exceeded the quota.
+
+   [원인]
+   dbfastec_sync_recovery_v124 는 동기화 실패 대비 임시 스냅샷이며
+   이번 백업에서 4,225 KB 를 차지한다. 브라우저 한도는 약 5,120 KB 다.
+   이 키 하나 때문에 정작 제품·도면·원가 데이터가 못 들어간다.
+   내장 [JSON 불러오기] 의 applyPayload() 는 순서 없이 전부 쓰기 때문에
+   여기서 걸리면 통째로 롤백하고 오류를 낸다.
+
+   [처리]
+   1) 재생성 가능한 임시본·중복본이 커지면 저장을 건너뛴다
+   2) 한도 오류가 나면 임시본을 비우고 한 번 더 시도한다
+   3) 내장 [JSON 불러오기] 를 안전복원으로 연결한다
+   ============================================================================ */
+
+/* 재생성되는 임시본 — 커지면 저장하지 않는다 */
+var JUNK={
+ 'dbfastec_sync_recovery_v124'       :{limit:300000, why:'동기화 임시 복구본'},
+ 'dbfastec_bom_edit_log_shadow_v1329':{limit:200000, why:'수정이력 사본'},
+ 'dbfastec_material_price_history_v128_session':{limit:200000,why:'원자재 세션 사본'}
+};
+/* 한도 오류 시 비울 수 있는 키 — 앞에서부터 */
+var PURGE=[
+ 'dbfastec_sync_recovery_v124',
+ 'dbfastec_bom_edit_log_shadow_v1329',
+ 'dbfastec_material_price_history_v128_session',
+ 'dbfastec_material_price_history_v128_mirror',
+ 'dbfastec_process_history_reconciled_v1350',
+ 'dbfastec_sync_meta_v1246',
+ 'dbfastec_process_latest_v125',
+ 'dbfastec_process_history_v120'
+];
+var prev=localStorage.setItem.bind(localStorage);
+function isQuota(e){
+  if(!e)return false;
+  return e.name==='QuotaExceededError'||e.name==='NS_ERROR_DOM_QUOTA_REACHED'||
+         e.code===22||e.code===1014||/quota/i.test(String(e.message||e));
+}
+function purge(exceptKey){
+  var freed=0;
+  PURGE.forEach(function(k){
+    if(k===exceptKey)return;
+    try{var v=localStorage.getItem(k);if(v!=null){freed+=v.length*2;localStorage.removeItem(k)}}catch(e){}
+  });
+  return freed;
+}
+localStorage.setItem=function(k,v){
+  var s=String(v==null?'':v),j=JUNK[k];
+  if(j&&s.length>j.limit){
+    console.warn('[QUOTAGUARD] '+k+' ('+Math.round(s.length*2/1024)+'KB) 저장 건너뜀 — '+j.why+', 자동 재생성됨');
+    try{localStorage.removeItem(k)}catch(e){}
+    return;
+  }
+  try{return prev(k,s)}
+  catch(e){
+    if(!isQuota(e))throw e;
+    var freed=purge(k);
+    console.warn('[QUOTAGUARD] 저장공간 부족 — 임시본 '+Math.round(freed/1024)+'KB 정리 후 재시도: '+k);
+    try{return prev(k,s)}
+    catch(e2){
+      if(JUNK[k]||PURGE.indexOf(k)>=0){console.warn('[QUOTAGUARD] '+k+' 저장 포기 (재생성 가능)');return}
+      throw e2;
+    }
+  }
+};
+
+/* 내장 [JSON 불러오기] 를 안전복원으로 연결 */
+function hookImport(){
+  var cur=window.importJson;
+  if(typeof cur!=='function'||cur.__quotaSafe)return;
+  var safe=function(ev){
+    var input=ev&&ev.target,f=input&&input.files&&input.files[0];
+    try{if(input)input.value=''}catch(e){}
+    if(!f)return;
+    if(typeof window.__safeRestorePreview==='function'){
+      window.__safeRestorePreview(f);
+      return;
+    }
+    return cur.apply(this,arguments);
+  };
+  safe.__quotaSafe=true;safe.__raw=cur;window.importJson=safe;
+  try{importJson=safe}catch(e){}
+}
+function boot(){hookImport()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.addEventListener('load',boot,{once:true});
+[400,1500,4000,9000,15000].forEach(function(ms){setTimeout(boot,ms)});
+
+/* 현재 저장공간 상태 */
+window.__quotaReport=function(){
+  var rows=[],tot=0;
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i),v=localStorage.getItem(k)||'',n=(k.length+v.length)*2;
+    tot+=n;rows.push({key:k,KB:Math.round(n/1024)});
+  }
+  rows.sort(function(a,b){return b.KB-a.KB});
+  console.log('총 사용량 '+Math.round(tot/1024)+' KB');
+  console.table(rows.slice(0,15));
+  return {totalKB:Math.round(tot/1024),rows:rows};
+};
+})();
+
+</script>
 <script id="prodguard-core">
 (function(){
 'use strict';
@@ -28133,10 +28246,6 @@ window.addEventListener('load',boot,{once:true});
 })();
 
 </script>
-<!-- ===== /V137.2 ===== -->
-
-
-<!-- ===== V137.3 : 백업 JSON 안전복원 (용량 초과 오류 대응) ===== -->
 <script id="saferestore-core">
 (function(){
 'use strict';
@@ -28344,6 +28453,7 @@ function preview(file){
   rd.readAsText(file);
 }
 
+window.__safeRestorePreview=function(f){ensureUi();preview(f)};
 function boot(){ensureUi()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 window.addEventListener('load',boot,{once:true});
@@ -28351,7 +28461,7 @@ window.addEventListener('load',boot,{once:true});
 })();
 
 </script>
-<!-- ===== /V137.3 ===== -->
+<!-- ===== /V137.4 ===== -->
 
 </body>
 </html>
