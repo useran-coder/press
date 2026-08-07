@@ -1542,8 +1542,8 @@ header{position:sticky!important;top:0!important;z-index:3000!important;backgrou
 #view-matprice .mp-grade-table td:first-child{padding:4px 7px!important}
 #view-matprice .mp-grade-table input{width:100%;height:29px;border:1px solid #dce3ec;border-radius:5px;padding:5px 6px;text-align:right;font-size:12px;background:#fff;color:#1b2435;font-family:inherit}
 #view-matprice .mp-grade-table input.mp-vendor{text-align:left;font-weight:700;color:#25354d}
-#view-matprice .mp-grade-table td.mp-month-min{background:#fff5c7!important}
-#view-matprice .mp-grade-table td.mp-month-min input{background:#fff1a8!important;border-color:#e1b936!important;color:#745000!important;font-weight:900!important;box-shadow:inset 0 0 0 1px rgba(225,185,54,.15)}
+#view-matprice .mp-grade-table td.mp-month-min{background:#fff!important}
+#view-matprice .mp-grade-table td.mp-month-min input{background:rgba(255,235,59,.25)!important;border-color:rgba(225,185,54,.45)!important;color:#745000!important;font-weight:900!important;box-shadow:none!important}
 #view-matprice .mp-grade-table .mp-del-row{width:27px;height:27px;border:1px solid #efc8c8;border-radius:6px;background:#fff;color:#b42323;font-weight:900;font-size:15px}
 #view-matprice .mp-grade-table .mp-del-row:hover{background:#b42323;color:#fff}
 #view-matprice .mp-card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 11px;border-top:1px solid #e4e9f0;background:#fbfcfe}
@@ -28607,7 +28607,7 @@ function monthAvg(rows,mi){
 function monthMins(rows){
   return Array.from({length:12},function(_,mi){
     var a=(rows||[]).map(function(r){return n0(r.m&&r.m[mi])}).filter(function(v){return v>0});
-    return a.length>=2?Math.min.apply(Math,a):null;
+    return a.length?Math.min.apply(Math,a):null;
   });
 }
 function latest(db,k,y){
@@ -28739,11 +28739,8 @@ function tableHtml(db,k,y){
         return '<td class="mp-ro'+(isMin?' mp-month-min':'')+'"'+(qty>0?' title="'+won(qty)+' kg 가중평균"':'')+'>'+(v>0?won(v):'<span class="mp-empty">-</span>')+'</td>';
       }).join('')+'</tr>';
   }).join('');
-  var avgRow='<tr class="mp-avgrow"><td>월 가중평균</td>'+Array.from({length:12},function(_,mi){
-    var a=monthAvg(rows,mi);return '<td>'+(a!=null?won(a):'<span class="mp-empty">-</span>')+'</td>';
-  }).join('')+'</tr>';
   var foot=IS_EDIT?'<div class="mp-card-foot"><button type="button" class="mp-add-vendor" data-mp-add="1" data-k="'+esc(k)+'">＋ 업체 추가</button><span class="mp-low-legend">노란색 = 해당 월 최저단가</span></div>':'';
-  return '<div class="mp-grade-scroll"><table class="mp-grade-table'+(IS_EDIT?'':' mp-ro-table')+'">'+head+'<tbody>'+body+avgRow+'</tbody></table></div>'+foot;
+  return '<div class="mp-grade-scroll"><table class="mp-grade-table'+(IS_EDIT?'':' mp-ro-table')+'">'+head+'<tbody>'+body+'</tbody></table></div>'+foot;
 }
 function gradeCard(db,m,y){
   var li=latest(db,m.k,y),mk=marketPrice(db,m.k,y),applied=Math.round(basePrice(m.k));
@@ -29252,7 +29249,7 @@ window.__matPriceApi={getDb:getDb,latest:function(k,y){return latest(getDb(),k,y
   '#view-matprice .mp-lab{font-size:11.5px;color:#7b8798;font-weight:800}'+
   '#view-matprice .mp-market-ro{display:inline-block;min-width:78px;text-align:right;font-weight:900;color:#855600;background:#fffaf0;border:1px solid #e3c882;border-radius:7px;padding:5px 8px;font-size:12px}'+
   '#view-matprice .mp-ro-table td.mp-ro{text-align:right;font-size:12px;font-weight:700;color:#1b2435;padding:6px 8px!important;background:#fff;height:auto}'+
-  '#view-matprice .mp-ro-table td.mp-month-min{background:#fff5c7!important;color:#745000;font-weight:900}'+
+  '#view-matprice .mp-ro-table td.mp-month-min{background:#fff!important;color:#1b2435;font-weight:900}'+
   '#view-matprice .mp-ro-table td.mp-vendor-cell{text-align:left;font-weight:800;color:#25354d;font-size:12px;white-space:nowrap;padding:6px 8px!important}'+
   '#view-matprice .mp-ro-table .mp-avgrow td{background:#eef4fb!important;font-weight:900;color:#16284a;text-align:right}'+
   '#view-matprice .mp-ro-table .mp-avgrow td:first-child{text-align:left}'+
@@ -29264,7 +29261,7 @@ window.__matPriceApi={getDb:getDb,latest:function(k,y){return latest(getDb(),k,y
   '#view-matprice .mp-vendor-inline{display:flex;align-items:center;gap:4px}'+
   '#view-matprice input.mp-vendor{flex:1 1 auto;min-width:0;text-align:left;font-weight:700;color:#25354d}'+
   '#view-matprice .mp-grade-table input{width:100%;height:29px;border:1px solid #dce3ec;border-radius:5px;padding:5px 6px;text-align:right;font-size:12px;background:#fff;color:#1b2435;font-family:inherit}'+
-  '#view-matprice .mp-grade-table td.mp-month-min input{background:#fff1a8!important;border-color:#e1b936!important;color:#745000!important;font-weight:900}'+
+  '#view-matprice .mp-grade-table td.mp-month-min input{background:rgba(255,235,59,.25)!important;border-color:#dce3ec!important;color:#745000!important;font-weight:900;box-shadow:none!important}'+
   '#view-matprice .mp-del-row{flex:0 0 auto;width:24px;height:24px;border:1px solid #efc8c8;border-radius:6px;background:#fff;color:#b42323;font-weight:900;font-size:14px;cursor:pointer;line-height:1}'+
   '#view-matprice .mp-del-row:hover{background:#b42323;color:#fff}'+
   '#view-matprice .mp-add-vendor{border:1px dashed #9bb9db;border-radius:7px;background:#fff;color:#245f9d;padding:7px 12px;font-weight:900;font-size:11.5px;cursor:pointer}'+
@@ -29302,5 +29299,229 @@ window.__matPriceApi={getDb:getDb,latest:function(k,y){return latest(getDb(),k,y
 
 </script>
 <!-- ===== /원자재 단가 v210 ===== -->
+
+
+<!-- 원자재단가 페이지: 이전 최종 파일(v53) 글자/최저단가 필드 스타일 적용 -->
+<style id="matprice-final-style-v1375">
+  /* 원자재단가 페이지의 제목 외 모든 글자/입력 필드 = 13px */
+  #view-matprice,
+  #view-matprice * {
+    font-size:13px !important;
+  }
+
+  /* 고철단가, EGI 추가 금액, EGI, HGI, PO, CR, STS201, STS304, STS430 제목 = 16px */
+  #view-matprice .mp-grade-name {
+    font-size:16px !important;
+  }
+
+  /* 해당 월 최저단가: 셀은 흰색 유지, 입력 필드 안에만 연한 노랑 25% */
+  #view-matprice .mp-grade-table td.mp-month-min {
+    background:#fff !important;
+    background-color:#fff !important;
+  }
+  #view-matprice .mp-grade-table td.mp-month-min input {
+    /* 입력 필드 안에만 밝은 노랑 25% */
+    background:rgba(255,235,59,.25) !important;
+    background-color:rgba(255,235,59,.25) !important;
+    border-color:#e7df9a !important;
+    color:#dc2626 !important;
+    -webkit-text-fill-color:#dc2626 !important;
+    font-weight:900 !important;
+    box-shadow:none !important;
+    -webkit-box-shadow:none !important;
+    caret-color:#dc2626 !important;
+  }
+
+  /* 조회 전용 셀은 배경색을 넣지 않음 */
+  #view-matprice .mp-ro-table td.mp-month-min {
+    background:#fff !important;
+    background-color:#fff !important;
+    color:#dc2626 !important;
+    font-weight:900 !important;
+  }
+</style>
+
+
+<!-- 원자재단가 최저단가 표시 근본 보정 v1380 -->
+<style id="matprice-min-visual-v1380">
+  html body #view-matprice table.mp-grade-table tbody td.mp-month-min{
+    background:#fff !important;
+    background-color:#fff !important;
+  }
+  html body #view-matprice table.mp-grade-table tbody td.mp-month-min > input.mp-month{
+    background:rgba(255,235,59,.25) !important;
+    background-color:rgba(255,235,59,.25) !important;
+    color:#dc2626 !important;
+    -webkit-text-fill-color:#dc2626 !important;
+    border-color:#e7df9a !important;
+    font-weight:900 !important;
+    box-shadow:none !important;
+    -webkit-box-shadow:none !important;
+    caret-color:#dc2626 !important;
+  }
+  html body #view-matprice table.mp-ro-table tbody td.mp-month-min{
+    background:#fff !important;
+    background-color:#fff !important;
+    color:#dc2626 !important;
+    -webkit-text-fill-color:#dc2626 !important;
+    font-weight:900 !important;
+  }
+</style>
+<script id="matprice-min-visual-script-v1380">
+(function(){
+  'use strict';
+  var scheduled=false, observer=null;
+  function num(v){
+    var n=Number(String(v==null?'':v).replace(/,/g,'').trim());
+    return isFinite(n)?n:0;
+  }
+  function clearPaint(td,input){
+    if(td){
+      td.classList.remove('mp-month-min');
+      td.style.removeProperty('background');
+      td.style.removeProperty('background-color');
+      td.style.removeProperty('color');
+      td.style.removeProperty('-webkit-text-fill-color');
+      td.style.removeProperty('font-weight');
+    }
+    if(input){
+      input.style.removeProperty('background');
+      input.style.removeProperty('background-color');
+      input.style.removeProperty('color');
+      input.style.removeProperty('-webkit-text-fill-color');
+      input.style.removeProperty('border-color');
+      input.style.removeProperty('font-weight');
+      input.style.removeProperty('box-shadow');
+      input.style.removeProperty('-webkit-box-shadow');
+      input.style.removeProperty('caret-color');
+    }
+  }
+  function paintEditTable(table){
+    var inputs=Array.prototype.slice.call(table.querySelectorAll('input.mp-month[data-mi]'));
+    if(!inputs.length)return false;
+    inputs.forEach(function(inp){clearPaint(inp.closest('td'),inp)});
+    for(var mi=0;mi<12;mi++){
+      var month=inputs.map(function(inp){
+        if(Number(inp.dataset.mi)!==mi)return null;
+        var v=num(inp.value);
+        return v>0?{inp:inp,td:inp.closest('td'),v:v}:null;
+      }).filter(Boolean);
+      if(!month.length)continue;
+      var min=Math.min.apply(Math,month.map(function(x){return x.v}));
+      month.forEach(function(x){
+        if(x.v!==min)return;
+        x.td.classList.add('mp-month-min');
+        x.td.style.setProperty('background','#fff','important');
+        x.td.style.setProperty('background-color','#fff','important');
+        x.inp.style.setProperty('background','rgba(255,235,59,.25)','important');
+        x.inp.style.setProperty('background-color','rgba(255,235,59,.25)','important');
+        x.inp.style.setProperty('color','#dc2626','important');
+        x.inp.style.setProperty('-webkit-text-fill-color','#dc2626','important');
+        x.inp.style.setProperty('border-color','#e7df9a','important');
+        x.inp.style.setProperty('font-weight','900','important');
+        x.inp.style.setProperty('box-shadow','none','important');
+        x.inp.style.setProperty('-webkit-box-shadow','none','important');
+        x.inp.style.setProperty('caret-color','#dc2626','important');
+      });
+    }
+    return true;
+  }
+  function paint(){
+    scheduled=false;
+    var view=document.getElementById('view-matprice');
+    if(!view)return;
+    var tables=view.querySelectorAll('table.mp-grade-table');
+    Array.prototype.forEach.call(tables,function(table){paintEditTable(table)});
+  }
+  function schedule(){
+    if(scheduled)return;
+    scheduled=true;
+    if(window.requestAnimationFrame)requestAnimationFrame(paint);else setTimeout(paint,0);
+  }
+  function installObserver(){
+    var view=document.getElementById('view-matprice');
+    if(!view||observer)return;
+    try{
+      observer=new MutationObserver(function(muts){
+        for(var i=0;i<muts.length;i++){
+          if(muts[i].type==='childList'){schedule();break;}
+        }
+      });
+      observer.observe(view,{childList:true,subtree:true});
+    }catch(e){}
+  }
+  document.addEventListener('input',function(e){
+    if(e.target&&e.target.matches&&e.target.matches('#view-matprice input.mp-month'))schedule();
+  },true);
+  document.addEventListener('change',function(e){
+    if(e.target&&e.target.matches&&e.target.matches('#view-matprice input.mp-month'))setTimeout(schedule,0);
+  },true);
+  document.addEventListener('click',function(e){
+    var t=e.target&&e.target.closest?e.target.closest('#tab-matprice,[data-go="matprice"],[data-v1296-go="matprice"]'):null;
+    if(t){setTimeout(function(){installObserver();schedule();},0);setTimeout(schedule,250);}
+  },true);
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){installObserver();schedule();setTimeout(schedule,300);},{once:true});
+  }else{
+    installObserver();schedule();setTimeout(schedule,300);
+  }
+  window.addEventListener('load',function(){installObserver();schedule();setTimeout(schedule,500);},{once:true});
+  window.__dbfPaintMaterialMinV1380=paint;
+})();
+</script>
+
+<!-- 원자재단가 최저단가: 입력필드만 노랑 25% 최종 보정 v1381 -->
+<style id="matprice-min-input-only-v1381">
+html body #view-matprice table.mp-grade-table tbody td.mp-month-min{
+  background:#fff !important;
+  background-color:#fff !important;
+}
+html body #view-matprice table.mp-grade-table tbody td.mp-month-min > input.mp-month{
+  background:rgba(255,235,59,.25) !important;
+  background-color:rgba(255,235,59,.25) !important;
+  color:#dc2626 !important;
+  -webkit-text-fill-color:#dc2626 !important;
+  border-color:#e7df9a !important;
+  font-weight:900 !important;
+  box-shadow:none !important;
+  -webkit-box-shadow:none !important;
+  caret-color:#dc2626 !important;
+}
+html body #view-matprice table.mp-ro-table tbody td.mp-month-min{
+  background:#fff !important;
+  background-color:#fff !important;
+}
+</style>
+
+<!-- 원자재단가 최저단가 표시 최종 보정 v1382
+     제조원가 앱은 MODE='read'이므로 월 단가가 input이 아니라 td 텍스트로 렌더링된다.
+     read 화면은 최저단가 셀 자체를 연노랑 25%로 표시하고, edit 화면은 input 안쪽만 표시한다. -->
+<style id="matprice-min-read-fallback-v1382">
+  /* 편집 화면이 사용되는 다른 배포본에서는 입력 필드 안에만 표시 */
+  html body #view-matprice table.mp-grade-table:not(.mp-ro-table) tbody td.mp-month-min{
+    background:#fff !important;
+    background-color:#fff !important;
+  }
+  html body #view-matprice table.mp-grade-table:not(.mp-ro-table) tbody td.mp-month-min > input.mp-month{
+    background:#ffface !important;
+    background-color:#ffface !important;
+    color:#dc2626 !important;
+    -webkit-text-fill-color:#dc2626 !important;
+    border-color:#e7df9a !important;
+    font-weight:900 !important;
+    caret-color:#dc2626 !important;
+  }
+
+  /* 제조원가(받기 전용) 화면: input이 없으므로 최저단가 셀 자체를 표시 */
+  html body #view-matprice table.mp-ro-table tbody td.mp-month-min,
+  html body #view-matprice table.mp-grade-table.mp-ro-table tbody td.mp-month-min{
+    background:#ffface !important;
+    background-color:#ffface !important;
+    color:#dc2626 !important;
+    -webkit-text-fill-color:#dc2626 !important;
+    font-weight:900 !important;
+  }
+</style>
+
 </body>
 </html>
